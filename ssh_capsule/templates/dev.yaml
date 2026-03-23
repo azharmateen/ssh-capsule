@@ -1,0 +1,83 @@
+name: dev-environment
+
+packages:
+  - git
+  - curl
+  - wget
+  - htop
+  - tmux
+  - vim
+  - zsh
+  - unzip
+  - jq
+  - tree
+  - make
+  - gcc
+  - build-essential
+  - ca-certificates
+  - gnupg
+  - lsb-release
+
+runtimes:
+  - name: python
+    version: "3.12"
+  - name: node
+    version: "20"
+
+env:
+  TZ: UTC
+  EDITOR: vim
+  LANG: en_US.UTF-8
+
+firewall:
+  - port: 22
+    proto: tcp
+    action: allow
+  - port: 80
+    proto: tcp
+    action: allow
+  - port: 443
+    proto: tcp
+    action: allow
+  - port: 3000
+    proto: tcp
+    action: allow
+  - port: 8000
+    proto: tcp
+    action: allow
+
+scripts:
+  - name: set-timezone
+    run: timedatectl set-timezone UTC
+    sudo: true
+    check: timedatectl show --property=Timezone --value 2>/dev/null | grep -q UTC
+
+  - name: install-docker
+    run: |
+      curl -fsSL https://get.docker.com | sh
+      systemctl enable docker
+      systemctl start docker
+    sudo: true
+    check: docker --version >/dev/null 2>&1
+
+  - name: install-docker-compose
+    run: |
+      curl -fsSL "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      chmod +x /usr/local/bin/docker-compose
+    sudo: true
+    check: docker-compose --version >/dev/null 2>&1
+
+  - name: install-oh-my-zsh
+    run: |
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    check: test -d ~/.oh-my-zsh
+
+  - name: setup-swap
+    run: |
+      fallocate -l 2G /swapfile
+      chmod 600 /swapfile
+      mkswap /swapfile
+      swapon /swapfile
+      echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    sudo: true
+    check: swapon --show | grep -q /swapfile
