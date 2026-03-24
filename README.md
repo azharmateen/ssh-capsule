@@ -1,5 +1,8 @@
 # ssh-capsule
 
+[![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-blue?logo=anthropic&logoColor=white)](https://claude.ai/code)
+
+
 **Bootstrap reproducible SSH environments on any server with one command.**
 
 Define your server environment as a YAML capsule -- packages, runtimes, dotfiles, firewall rules, services, scripts -- and apply it to any server over SSH. Idempotent, snapshotable, rollbackable.
